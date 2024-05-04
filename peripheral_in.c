@@ -19,32 +19,37 @@
 
 const unsigned char sw_chatter_prev_cnt = 10;
 
-/* SW1:信号コピースイッチ */
+/* SW1:copy sw*/
 static unsigned char copysw_port_data;
 static unsigned char copysw_state_buffer;
-unsigned char copysw_state;
-unsigned char copysw_state_before;
+static unsigned char copysw_state_before;
 static unsigned char copysw_chatter_prev_cnt;
+unsigned char copysw_state;
+unsigned char copysw_state_change;       /*H->L, L->H change detect */
 
-/* SW2：信号送信スイッチ */
+
+/* SW2：send sw */
 static unsigned char sendsw_port_data;
 static unsigned char sendsw_state_buffer;
-unsigned char sendsw_state;
-unsigned char sendsw_state_before;
+static unsigned char sendsw_state_before;
 static unsigned char sendsw_chatter_prev_cnt;
+unsigned char sendsw_state;
+unsigned char sendsw_state_change;
 
-/* SW3：電源スイッチ */
+/* SW3：power sw */
 static unsigned char powersw_port_data;
 static unsigned char powersw_state_buffer;
-unsigned char powersw_state;
-unsigned char powersw_state_before;
+static unsigned char powersw_state_before;
 static unsigned char powersw_chatter_prev_cnt;
+unsigned char powersw_state;
+unsigned char powersw_state_change;
+
 
 void peripheral_in_init(void);
 void peripheral_in_main(void);
 
 static void peripheral_in_get_port_state(void);
-static void peripheral_in_judge_state(unsigned char *swx_port_data, unsigned char *swx_state_buffer, unsigned char *swx_chatter_prev_cnt, unsigned char *swx_state, unsigned char *swx_state_before);
+static void peripheral_in_judge_state(unsigned char *swx_port_data, unsigned char *swx_state_buffer, unsigned char *swx_chatter_prev_cnt, unsigned char *swx_state,unsigned char *swx_state_before, unsigned char *swx_state_change);
 
 void peripheral_in_init(void)
 {
@@ -70,9 +75,9 @@ void peripheral_in_init(void)
 void peripheral_in_main(void)
 {
     peripheral_in_get_port_state();
-    peripheral_in_judge_state(&copysw_port_data, &copysw_state_buffer, &copysw_chatter_prev_cnt, &copysw_state,&copysw_state_before);
-    peripheral_in_judge_state(&sendsw_port_data, &sendsw_state_buffer, &sendsw_chatter_prev_cnt, &sendsw_state,&sendsw_state_before);
-    peripheral_in_judge_state(&powersw_port_data, &powersw_state_buffer, &powersw_chatter_prev_cnt, &powersw_state, &powersw_state_before);
+    peripheral_in_judge_state(&copysw_port_data, &copysw_state_buffer, &copysw_chatter_prev_cnt, &copysw_state,&copysw_state_before,&copysw_state_change);
+    peripheral_in_judge_state(&sendsw_port_data, &sendsw_state_buffer, &sendsw_chatter_prev_cnt, &sendsw_state,&sendsw_state_before,&sendsw_state_change);
+    peripheral_in_judge_state(&powersw_port_data, &powersw_state_buffer, &powersw_chatter_prev_cnt, &powersw_state, &powersw_state_before,&powersw_state_change);
 }
 
 static void peripheral_in_get_port_state(void)
@@ -84,7 +89,7 @@ static void peripheral_in_get_port_state(void)
 
 
 
-static void peripheral_in_judge_state(unsigned char *swx_port_data, unsigned char *swx_state_buffer, unsigned char *swx_chatter_prev_cnt, unsigned char *swx_state, unsigned char *swx_state_before)
+static void peripheral_in_judge_state(unsigned char *swx_port_data, unsigned char *swx_state_buffer, unsigned char *swx_chatter_prev_cnt, unsigned char *swx_state,unsigned char *swx_state_before, unsigned char *swx_state_change)
 {
     if( (*swx_port_data) == SW_ACTIVE)
     {
@@ -100,10 +105,7 @@ static void peripheral_in_judge_state(unsigned char *swx_port_data, unsigned cha
                 (*swx_chatter_prev_cnt)++;
                 if( (*swx_chatter_prev_cnt) >= sw_chatter_prev_cnt)
                 {
-                    if(*swx_state_before == CLEAR)  /*for rising edge*/
-                    {
-                        (*swx_state) = SET;
-                    }
+                    (*swx_state) = SET;
                 }
             }
         }
@@ -128,5 +130,14 @@ static void peripheral_in_judge_state(unsigned char *swx_port_data, unsigned cha
         }
     }
     
+    if((*swx_state_before == CLEAR) && (*swx_state == SET))
+    {
+        *swx_state_change = SET;    /*rising edge detector*/
+    }
+    else
+    {
+        *swx_state_change = CLEAR;
+    }
+        
     *swx_state_before = *swx_state;
 }

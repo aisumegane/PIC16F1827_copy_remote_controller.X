@@ -13,8 +13,14 @@ extern "C" {
 #endif
 
     extern unsigned char powersw_state;
+    extern unsigned char powersw_state_change;
+    
     extern unsigned char copysw_state;
+    extern unsigned char copysw_state_change;
+    
     extern unsigned char sendsw_state;
+    extern unsigned char sendsw_state_change;
+    
     
     extern void peripheral_in_init(void);
     extern void peripheral_in_main(void);

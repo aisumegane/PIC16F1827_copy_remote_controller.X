@@ -1,7 +1,7 @@
 /*
  * File:   interrupt.c
  * Author: 氷MEGANE
- * Mid-Range 8-bit MCUs PIC16F819
+ * Mid-Range 8-bit MCUs PIC16F1827
  * Created on 2024/03/27, 23:38
  */
 
@@ -26,6 +26,7 @@ void sequence_check_led(void);
 
 void main(void) {
     main_init();
+    
     gf_enable_interrupt();
     
     while(1)
@@ -53,14 +54,12 @@ void main_task(void)
             peripheral_in_main();       /* ポートの入力 */
             peripheral_out_main();      /* ポートの出力 */
 
-            if(copysw_state == SET)
+            if((copysw_state == SET) && (copysw_state_change == SET))       /*prevention of two consecutive  treatments*/
             {
-                peripheral_in_init();   /* 2回連続で処理が入らないように */
                 sequence_num = SEQUENCE_COPY_DATA;   
             }
-            else if(sendsw_state == SET)
+            else if((sendsw_state == SET) && (sendsw_state_change == SET))  /*prevention of two consecutive treatments*/
             {
-                peripheral_in_init();   /* 2回連続で処理が入らないように */
                 sequence_num = SEQUENCE_SEND_DATA;   
             }
             else
