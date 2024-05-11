@@ -228,11 +228,11 @@ void io_port_setup(void)
     
     /*TRISB*/   /*1:ì¸óÕ / 0:èoóÕ*/
     TRISBbits.TRISB0 = SET;
-    TRISBbits.TRISB1 = SET;
+    TRISBbits.TRISB1 = SET;     /*I2C:SDA*/
     TRISBbits.TRISB2 = SET;
-    TRISBbits.TRISB3 = CLEAR;
+    TRISBbits.TRISB3 = SET;
     
-    TRISBbits.TRISB4 = CLEAR;
+    TRISBbits.TRISB4 = SET;     /*I2C:SCK*/
     TRISBbits.TRISB5 = CLEAR;
     TRISBbits.TRISB6 = SET;
     TRISBbits.TRISB7 = SET;

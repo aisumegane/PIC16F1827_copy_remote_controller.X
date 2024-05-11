@@ -11,6 +11,8 @@
 #include "interrupt.h"
 #include "copydata.h"
 #include "register_setup.h"
+#include "peripheral_out.h"
+
 #include "senddata.h"
 
 #define DEBUG_TEST  CLEAR
@@ -36,6 +38,7 @@ void senddata_main(void)
     gf_enable_ccp1_interrupt();
     gf_timer1_start();
     gf_timer2_start();
+    peripheral_out_ra7_port_set(CLEAR);     /*pwm止めてもポートは0に落ちない*/
     
     led_data_ary_index = 0;
     led_data_index = 0;
@@ -58,6 +61,7 @@ void senddata_main(void)
     gf_disable_ccp1_interrupt();
     gf_timer1_stop();
     gf_timer2_stop();
+    peripheral_out_ra7_port_set(CLEAR);
     
     
     
@@ -231,7 +235,22 @@ void senddata_debug_test(void)
             gf_disable_ccp1_interrupt();
         }
     }
-     
+    
+#if 0
+    /*これも動作微妙...*/
+    if(data_shift_buffer >= 0xFF)       /*次出力するデータが0xFF(最後)なら、終わる*/
+    {
+        senddata_send_end_req = SET;
+    }
+#endif
+    
+#if 0
+    /*動作不安定、たまに途中で送信とまる*/
+    if((senddata_endary_index == led_data_ary_index) && (senddata_enddata_index == led_data_index))
+    {
+        senddata_send_end_req = SET;
+    }
+#endif
     
     TMR1 = 0x0000;
     

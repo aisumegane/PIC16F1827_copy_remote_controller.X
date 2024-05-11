@@ -8,7 +8,7 @@
 #ifndef XC_REGISTER_SETUP_H
 #define	XC_REGISTER_SETUP_H
 
-#define _XTAL_FREQ  32000000     /* 4MHz */
+#define _XTAL_FREQ  32000000     /* 32MHz */
 
 #define CAPTURE_RISING_EDGE     1
 #define CAPTURE_FALLING_EDGE    0

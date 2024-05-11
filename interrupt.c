@@ -9,19 +9,20 @@
 
 #include "register_setup.h"
 #include "grobal_macro.h"
-#include "interrupt.h"
 #include "copydata.h"
 #include "senddata.h"
 #include "main.h"
 
+#include "interrupt.h"
 
 /*first interrupt defender*/
 #define FIRST_TMR1IF_DEFENDER   CLEAR
 #define FIRST_CCP1IF_DEFENDER   SET
 #define FIRST_CCP2IF_DEFENDER   SET
 
+#define TIMER0_EVENT_DIVIDE     2
 
-unsigned int cnt = 0;
+unsigned int timer0_event_divide_cnt = 0;
 unsigned char interrupt__maintask_go = CLEAR;
 
 static void __interrupt() isr(void);
@@ -122,12 +123,14 @@ static void __interrupt() isr(void)
 
 static void interrupt_timer0_tmr0if(void)
 {   /*ovfのとき8ms経過*/
-    if (cnt == 10)
+    if (timer0_event_divide_cnt == TIMER0_EVENT_DIVIDE)
     {
+        PORTBbits.RB5 = SET;    /*処理時間測定*/
         copydata_set_copy_end_req();
-        cnt = 0;            // オーバーフローカウンタをリセット        
+        timer0_event_divide_cnt = 0;            // オーバーフローカウンタをリセット        
+        //PORTBbits.RB5 = CLEAR;    /*処理時間測定*/
     }
-    cnt++;                  // オーバーフローカウンタをインクリ
+    timer0_event_divide_cnt++;                  // オーバーフローカウンタをインクリ
 }
 
 static void interrupt_timer1_tmr1if(void)
@@ -152,7 +155,7 @@ static void interrupt_timer1_ccp1if(void)
 #endif
     
     //copydata_1byte_copy_interrupt();
-    PORTBbits.RB5 = SET;    /*処理時間測定*/
+    
     
     if(sequence_num == SEQUENCE_COPY_DATA)
     {
@@ -162,9 +165,6 @@ static void interrupt_timer1_ccp1if(void)
     {
         senddata_debug_test();
     }
-    
-    
-    PORTBbits.RB5 = CLEAR;    /*処理時間測定*/
 }
 
 static void interrupt_timer2_tmr2if(void)

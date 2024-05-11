@@ -50,6 +50,13 @@ void peripheral_in_main(void);
 
 static void peripheral_in_get_port_state(void);
 static void peripheral_in_judge_state(unsigned char *swx_port_data, unsigned char *swx_state_buffer, unsigned char *swx_chatter_prev_cnt, unsigned char *swx_state,unsigned char *swx_state_before, unsigned char *swx_state_change);
+ 
+static void peripheral_in_get_port_state(void)
+{
+    copysw_port_data = PORTAbits.RA4;
+    sendsw_port_data = PORTBbits.RB2;
+    powersw_port_data = PORTBbits.RB3;
+}
 
 void peripheral_in_init(void)
 {
@@ -80,12 +87,7 @@ void peripheral_in_main(void)
     peripheral_in_judge_state(&powersw_port_data, &powersw_state_buffer, &powersw_chatter_prev_cnt, &powersw_state, &powersw_state_before,&powersw_state_change);
 }
 
-static void peripheral_in_get_port_state(void)
-{
-    copysw_port_data = PORTAbits.RA4;
-    sendsw_port_data = PORTBbits.RB1;
-    powersw_port_data = PORTBbits.RB2;
-}
+
 
 
 

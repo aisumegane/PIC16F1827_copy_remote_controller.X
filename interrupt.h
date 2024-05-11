@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 // Timer0 のオーバーフローをカウントする
-extern unsigned int cnt;
+extern unsigned int timer0_event_divide_cnt;
 extern unsigned char interrupt_ccp1if_defend_cmp;   /*設定適用後の初回割込みを防止する関数*/
 extern unsigned char interrupt_ccp2if_defend_cmp;
 

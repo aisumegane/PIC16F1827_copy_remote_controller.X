@@ -14,6 +14,7 @@ extern "C" {
 
 extern void peripheral_out_init(void);
 extern void peripheral_out_main(void);
+extern void peripheral_out_ra7_port_set(unsigned char port_data);
 
 #ifdef	__cplusplus
 }

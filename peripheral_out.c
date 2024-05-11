@@ -13,6 +13,8 @@
 void peripheral_out_init(void);
 void peripheral_out_main(void);
 
+void peripheral_out_ra7_port_set(unsigned char port_data);
+
 static void peripheral_led_test(void);
 static void peripheral_infrared_led_test(void);
 
@@ -35,12 +37,10 @@ static void peripheral_led_test(void)
     if(copysw_state == SET)
     {
         PORTAbits.RA2 = SET;
-        //PORTBbits.RB3 = SET;
     }
     else
     {
         PORTAbits.RA2 = CLEAR;
-        //PORTBbits.RB3 = CLEAR;
     }
     
     /**/
@@ -73,7 +73,6 @@ static void peripheral_infrared_led_test(void)
     if(PORTBbits.RB0 == SET)
     {
         PORTBbits.RB5 = SET;
-        //PORTBbits.RB3 = SET;
         //gf_disable_interrupt();
         CCPR1L = 0x11;
         //gf_enable_interrupt();
@@ -81,12 +80,15 @@ static void peripheral_infrared_led_test(void)
     else
     {
         PORTBbits.RB5 = CLEAR;
-        //PORTBbits.RB3 = CLEAR;
         //gf_disable_interrupt();
         CCPR1L = 0x00;       
         //gf_enable_interrupt();
     }
-    //PORTBbits.RB3 = SET;
+}
+
+void peripheral_out_ra7_port_set(unsigned char port_data)
+{
+    PORTAbits.RA7 = port_data;
 }
 
 #endif

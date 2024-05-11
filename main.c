@@ -14,6 +14,8 @@
 #include "peripheral_out.h"
 #include "copydata.h"
 #include "senddata.h"
+#include "i2c.h"
+#include "lcdisplay.h"
 
 #include "main.h"
 
@@ -43,6 +45,9 @@ void main_init(void)
     
     peripheral_in_init();
     peripheral_out_init();
+    i2c_master_init();
+    
+    lcdisplay_init();       /*I2C’ÊM‚Å‰Šú‰»‚·‚é‚Ì‚ÅI2Cinit‚ÌŒã!*/
     
     sequence_num = SEQUENCE_MAIN;
 }
@@ -107,6 +112,8 @@ void main_task(void)
            break;
     }
    
+   /*LCD communication after completion of flag switching and before the next copy or transmission*/
+    lcdisplay_main();   
    //sequence_check_led();
 }
 

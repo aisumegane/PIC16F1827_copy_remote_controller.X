@@ -83,6 +83,7 @@ void copydata_main(void)
     gf_timer1_start();
 
     interrupt_ccp1if_defend_cmp = CLEAR;
+    timer0_event_divide_cnt = 0;
     
     gf_enable_interrupt();
     
@@ -127,7 +128,7 @@ void copydata_main(void)
     led_data_ary_index = 0;
     led_data_index = 0;
     
-    cnt = 0;
+    timer0_event_divide_cnt = 0;
     interrupt_ccp1if_defend_cmp = CLEAR;
     
     /*hardware status reset*/
