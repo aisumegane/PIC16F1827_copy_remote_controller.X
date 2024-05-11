@@ -113,7 +113,7 @@ void main_task(void)
     }
    
    /*LCD communication after completion of flag switching and before the next copy or transmission*/
-    lcdisplay_main();   
+   lcdisplay_main();   
    //sequence_check_led();
 }
 
