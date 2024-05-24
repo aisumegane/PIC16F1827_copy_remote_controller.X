@@ -58,8 +58,7 @@ void copydata_main(void)
 {
     unsigned char loop_index;
     
-    PORTAbits.RA2 = SET;    /*Processing time measurement*/
-    gf_disable_interrupt();
+    rs_disable_interrupt();
     
     for(loop_index = 0;loop_index < COPYDATA_DATA_INDEX;loop_index++)
     {
@@ -85,17 +84,17 @@ void copydata_main(void)
     interrupt_ccp1if_defend_cmp = CLEAR;
     timer0_event_divide_cnt = 0;
     
-    gf_enable_interrupt();
+    rs_enable_interrupt();
     
     while(1)
     {
 #if 1
         if((copydata_copy_start_flag == SET) && (copydata_copy_start == CLEAR))
         {
-            gf_disable_interrupt();
+            rs_disable_interrupt();
             TMR0 = 0x00;
             gf_enable_timer0_interrupt();
-            gf_enable_interrupt();
+            rs_enable_interrupt();
             
             copydata_copy_start = SET;
         }
@@ -109,7 +108,7 @@ void copydata_main(void)
 
 
     
-    gf_disable_interrupt();
+    rs_disable_interrupt();
 
     gf_disable_ccp1_interrupt();
     
@@ -142,8 +141,7 @@ void copydata_main(void)
     copydata_copy_end_req = CLEAR;
     copydata_copy_end_flag = SET;       /*for sequence change*/
 
-    gf_enable_interrupt();
-    PORTAbits.RA2 = CLEAR;    /*Processing time measurement*/
+    rs_enable_interrupt();
 }
 
 void copydata_fill_brank_data(void)
@@ -200,7 +198,7 @@ void copydata_copy_pre(void)
     //    if((copydata_copy_end_flag == SET) || (copydata_copy_fail_flag == SET))
     if(copydata_copy_end_req == SET)
     {   /*copy end*/
-        gf_disable_interrupt();
+        rs_disable_interrupt();
         
         gf_disable_ccp1_interrupt();
         gf_disable_timer1_interrupt();
@@ -215,11 +213,11 @@ void copydata_copy_pre(void)
         copydata_copy_end_req = CLEAR;
         copydata_copy_end_flag = SET;       /*for sequence change*/
         
-        gf_enable_interrupt();
+        rs_enable_interrupt();
     }
     else if((copydata_copy_start_flag == CLEAR) &&(copydata_copy_interrupt_wait == CLEAR))
     {   /*copy start*/
-        gf_disable_interrupt();
+        rs_disable_interrupt();
         
         timer1_capture_mode_setup();
         timer1_capture_mode_edge_select(CAPTURE_RISING_EDGE);   /*just to be sure...*/
@@ -229,13 +227,13 @@ void copydata_copy_pre(void)
         gf_timer1_start();
         copydata_copy_interrupt_wait = SET;
         
-        gf_enable_interrupt();
+        rs_enable_interrupt();
     }
     else if((copydata_copy_start_flag == CLEAR) && (copydata_copy_interrupt_wait == SET))
     {   /*wait first ccp1(capture) interrupt*/
-        gf_disable_interrupt();
+        rs_disable_interrupt();
         TMR1 = 0x0000;
-        gf_enable_interrupt();
+        rs_enable_interrupt();
     }
     else if(copydata_copy_start_flag == SET)
     {   /*now ccp1(capture) interrupt*/
@@ -256,7 +254,6 @@ void copydata_1byte_copy_interrupt(void)
     
     local_capture_edge = register_setup_timer1_capture_edge;
     
-     //PORTAbits.RA2 = SET;
     
     if(copydata_copy_end_req == CLEAR)
     {
@@ -361,12 +358,12 @@ void copydata_1byte_copy_interrupt(void)
         /*for next sampling preparing*/
         if(local_capture_edge == CAPTURE_RISING_EDGE)
         {
-            gf_disable_interrupt();
+            rs_disable_interrupt();
             timer1_capture_mode_edge_select(CAPTURE_FALLING_EDGE);
         }
         else /*if(local_capture_edge == CAPTURE_FALLING_EDGE)*/
         {
-            gf_disable_interrupt();
+            rs_disable_interrupt();
             timer1_capture_mode_edge_select(CAPTURE_RISING_EDGE);
         }
 
@@ -494,12 +491,12 @@ void copydata_debug_test(void)
     /*次のサンプリングのエッジ選択*/
     if(local_capture_edge == CAPTURE_RISING_EDGE)
     {
-        gf_disable_interrupt();
+        rs_disable_interrupt();
         timer1_capture_mode_edge_select(CAPTURE_FALLING_EDGE);
     }
     else /*if(local_capture_edge == CAPTURE_FALLING_EDGE)*/
     {
-        gf_disable_interrupt();
+        rs_disable_interrupt();
         timer1_capture_mode_edge_select(CAPTURE_RISING_EDGE);
     }
     

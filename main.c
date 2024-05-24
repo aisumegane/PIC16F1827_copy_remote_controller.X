@@ -16,11 +16,12 @@
 #include "senddata.h"
 #include "i2c.h"
 #include "lcdisplay.h"
+#include "freq_change.h"
 
 #include "main.h"
 
 
-unsigned char sequence_num = 0;
+unsigned char main_sequence_num = 0;
 
 void main_init(void);
 void main_task(void);
@@ -29,7 +30,7 @@ void sequence_check_led(void);
 void main(void) {
     main_init();
     
-    gf_enable_interrupt();
+    rs_enable_interrupt();
     
     while(1)
     {
@@ -49,23 +50,26 @@ void main_init(void)
     
     lcdisplay_init();       /*I2C通信で初期化するのでI2Cinitの後!*/
     
-    sequence_num = SEQUENCE_MAIN;
+    main_sequence_num = SEQUENCE_MAIN;
 }
 
 void main_task(void)
 {
-   switch(sequence_num){
+   switch(main_sequence_num){
         case SEQUENCE_MAIN:
             peripheral_in_main();       /* ポートの入力 */
-            peripheral_out_main();      /* ポートの出力 */
 
             if((copysw_state == SET) && (copysw_state_change == SET))       /*prevention of two consecutive  treatments*/
             {
-                sequence_num = SEQUENCE_COPY_DATA;   
+                main_sequence_num = SEQUENCE_COPY_DATA;   
             }
             else if((sendsw_state == SET) && (sendsw_state_change == SET))  /*prevention of two consecutive treatments*/
             {
-                sequence_num = SEQUENCE_SEND_DATA;   
+                main_sequence_num = SEQUENCE_SEND_DATA;   
+            }
+            else if((freqchange_sw_state == SET) && (freqchange_sw_state_change == SET))  /*prevention of two consecutive treatments*/
+            {
+                main_sequence_num = SEQUENCE_FREQ_CHANGE;
             }
             else
             {
@@ -88,12 +92,12 @@ void main_task(void)
                 /* tmr1H/Lをリセット ※TMR1Hは未使用 */
                 
                 copydata_clear_copy_end_flag();
-                sequence_num = SEQUENCE_MAIN;
+                main_sequence_num = SEQUENCE_MAIN;
             }
             else if(copydata_copy_fail_flag == SET)
             {
                 copydata_copy_fail_flag = CLEAR;
-                sequence_num = SEQUENCE_MAIN;
+                main_sequence_num = SEQUENCE_MAIN;
             }
 #endif
             break;
@@ -104,22 +108,27 @@ void main_task(void)
             if(senddata_send_end_flag == SET)
             {
                 senddata_send_end_flag = CLEAR;
-                sequence_num = SEQUENCE_MAIN;
+                main_sequence_num = SEQUENCE_MAIN;
             }
             break;
+            
+       case SEQUENCE_FREQ_CHANGE:
+           freq_change_main();
+           break;
             
        default:
            break;
     }
    
-   /*LCD communication after completion of flag switching and before the next copy or transmission*/
+   /*common process*/
    lcdisplay_main();   
-   //sequence_check_led();
+   peripheral_out_main();
 }
 
+#if 0
 void sequence_check_led(void)
 {
-    switch(sequence_num){
+    switch(main_sequence_num){
         case SEQUENCE_MAIN:
             PORTAbits.RA2 = SET;
             PORTAbits.RA3 = CLEAR;
@@ -142,3 +151,4 @@ void sequence_check_led(void)
            break;
     }
 }
+#endif

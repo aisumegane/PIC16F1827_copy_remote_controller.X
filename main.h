@@ -10,14 +10,14 @@
 
 #ifdef	__cplusplus
 extern "C" {
-#endif
-
+#endif    
     #define SEQUENCE_MAIN                0
     #define SEQUENCE_COPY_DATA           1
     #define SEQUENCE_SEND_DATA           2
     #define SEQUENCE_COPY_DATA_FAILED    3
+    #define SEQUENCE_FREQ_CHANGE         4
 
-    extern unsigned char sequence_num;
+    extern unsigned char main_sequence_num;
 
 #ifdef	__cplusplus
 }

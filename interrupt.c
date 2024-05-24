@@ -125,10 +125,8 @@ static void interrupt_timer0_tmr0if(void)
 {   /*ovfのとき8ms経過*/
     if (timer0_event_divide_cnt == TIMER0_EVENT_DIVIDE)
     {
-        PORTBbits.RB5 = SET;    /*処理時間測定*/
         copydata_set_copy_end_req();
         timer0_event_divide_cnt = 0;            // オーバーフローカウンタをリセット        
-        //PORTBbits.RB5 = CLEAR;    /*処理時間測定*/
     }
     timer0_event_divide_cnt++;                  // オーバーフローカウンタをインクリ
 }
@@ -157,11 +155,11 @@ static void interrupt_timer1_ccp1if(void)
     //copydata_1byte_copy_interrupt();
     
     
-    if(sequence_num == SEQUENCE_COPY_DATA)
+    if(main_sequence_num == SEQUENCE_COPY_DATA)
     {
         copydata_debug_test();
     }
-    else if(sequence_num == SEQUENCE_SEND_DATA)
+    else if(main_sequence_num == SEQUENCE_SEND_DATA)
     {
         senddata_debug_test();
     }
@@ -183,12 +181,10 @@ static void interrupt_inte(void)
     if(edge_select_now == CLEAR)
     {
         CCPR1L = 0x00;
-        PORTBbits.RB5 = CLEAR;
     }
     else
     {
         CCPR1L = 0x11;
-        PORTBbits.RB5 = SET;
     }
     
 #if 1

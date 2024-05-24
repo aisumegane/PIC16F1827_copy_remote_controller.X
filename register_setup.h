@@ -8,6 +8,12 @@
 #ifndef XC_REGISTER_SETUP_H
 #define	XC_REGISTER_SETUP_H
 
+
+#define DEBUGBOARD_MODE     0
+#define PRINTBOARD_MODE     1
+    
+#define PORTMODE    PRINTBOARD_MODE
+
 #define _XTAL_FREQ  32000000     /* 32MHz */
 
 #define CAPTURE_RISING_EDGE     1
@@ -21,8 +27,8 @@ extern void timer1_capture_mode_edge_select(unsigned char edge_select);     /*CC
 extern void timer1_capture_mode_setup(void);
 extern void timer1_compare_mode_setup(void);
 
-extern void gf_enable_interrupt(void);    /*Š„‚İ‹–‰ÂŠÖ”*/
-extern void gf_disable_interrupt(void);   /*Š„‚İ‹Ö~ŠÖ”*/
+extern void rs_enable_interrupt(void);    /*Š„‚İ‹–‰ÂŠÖ”*/
+extern void rs_disable_interrupt(void);   /*Š„‚İ‹Ö~ŠÖ”*/
 extern void gf_timer1_start(void);        /*timer1 “®ìŠJnŠÖ”*/
 extern void gf_timer1_stop(void);         /*timer1 “®ì’â~ŠÖ”*/
 extern void gf_timer2_start(void);
@@ -39,7 +45,8 @@ extern void gf_disable_timer1_interrupt(void);
 extern void gf_enable_ccp1_interrupt(void);
 extern void gf_disable_ccp1_interrupt(void);
 
-extern void gf_ccp2_set_pwmduty_8bit(unsigned char duty);
+extern void rs_ccp2_set_pwmduty_8bit(unsigned char duty);
+extern void rs_ccp2_set_carrier_freq_8bit(unsigned char carrier_freq);
 
 /**/
 

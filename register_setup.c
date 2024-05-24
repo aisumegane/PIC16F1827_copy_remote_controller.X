@@ -11,6 +11,7 @@
 
 /*header*/
 #include "grobal_macro.h"
+
 #include "register_setup.h"
 
 
@@ -58,7 +59,8 @@ void gf_disable_ccp1_interrupt(void);
 void gf_enable_timer1_interrupt(void);
 void gf_disable_timer1_interrupt(void);
 
-void gf_ccp2_set_pwmduty_8bit(unsigned char duty);
+void rs_ccp2_set_pwmduty_8bit(unsigned char duty);
+void rs_ccp2_set_carrier_freq_8bit(unsigned char carrier_freq);
 
 
 
@@ -66,8 +68,8 @@ void timer1_capture_mode_edge_select(unsigned char edge_select);
 
 
 /*global func*/
-void gf_enable_interrupt(void);    /*割込み許可関数*/
-void gf_disable_interrupt(void);   /*割込み禁止関数*/
+void rs_enable_interrupt(void);    /*割込み許可関数*/
+void rs_disable_interrupt(void);   /*割込み禁止関数*/
 void gf_timer1_start(void);        /*timer1 動作開始関数*/
 void gf_timer1_stop(void);         /*timer1 動作停止関数*/
 void gf_timer2_start(void);
@@ -134,7 +136,7 @@ void apfcon_reg_setup(void)
     APFCON0bits.CCP2SEL     = SET;      /*CCP2/P2A function:RB6,RA7 pin selection bit*/       /*CCP2 set to RA7*/
     APFCON0bits.P1DSEL      = CLEAR;    /*P1D function:RB7.RA6 pin selection bit*/
     APFCON0bits.P1CSEL      = CLEAR;    /*P1C function:RB6,RA7 pin selection bit*/
-    APFCON0bits.CCP1SEL     = SET;      /*CCP1/P1A function:RB3,RB0 selection bit*/         /*set to RB0*/
+    APFCON0bits.CCP1SEL     = CLEAR;      /*CCP1/P1A function:RB3,RB0 selection bit*/         /*RB3:CLEAR / RB0:SET*/
     
     APFCON1bits.TXCKSEL     = CLEAR;    /*TXCKSEL pin selection bit*/                       /*TX/CK set to RB2*/
 }
@@ -215,6 +217,7 @@ void interrupt_setup(void)
 
 void io_port_setup(void)
 {
+#if(PORTMODE == DEBUGBOARD_MODE)
     /*TRISA*/
     TRISAbits.TRISA0 = CLEAR;
     TRISAbits.TRISA1 = CLEAR;
@@ -291,6 +294,85 @@ void io_port_setup(void)
     ANSELBbits.ANSB3        = CLEAR;    /*analog / digital mode selection:digital*/
     ANSELBbits.ANSB2        = CLEAR;    /*analog / digital mode selection:digital*/
     ANSELBbits.ANSB1        = CLEAR;    /*analog / digital mode selection:digital*/
+    
+#else if(PORTMODE == PORTSET_PRINTBOARD_MODE)
+    /*TRISA*/
+    TRISAbits.TRISA0 = CLEAR;       /*none*/
+    TRISAbits.TRISA1 = CLEAR;       /*none*/
+    TRISAbits.TRISA2 = SET;         /*SW1:COPY-SW*/
+    TRISAbits.TRISA3 = SET;         /*SW2:SEND-SW*/
+    
+    TRISAbits.TRISA4 = CLEAR;       /*Red LED*/
+    TRISAbits.TRISA5 = SET;         /*none(MCLR)*/
+    TRISAbits.TRISA6 = CLEAR;       /*none*/
+    TRISAbits.TRISA7 = CLEAR;       /*Infrared LED output (CCP2 PWM)*/
+    
+    /*TRISB*/   /*1:入力 / 0:出力*/
+    TRISBbits.TRISB0 = CLEAR;       /*Yellow LED*/
+    TRISBbits.TRISB1 = SET;         /*I2C:SDA*/
+    TRISBbits.TRISB2 = CLEAR;       /*Green LED*/
+    TRISBbits.TRISB3 = SET;         /*photo transistor*/
+    
+    TRISBbits.TRISB4 = SET;         /*I2C:SCK*/
+    TRISBbits.TRISB5 = SET;         /*SW3:freq_change-SW*/
+    TRISBbits.TRISB6 = SET;         /*none(PGC)*/
+    TRISBbits.TRISB7 = SET;         /*none(PGD)*/
+    
+    /*=====================================================*/
+    
+    /*PORTA*/   /*1:Hレベル出力 / 0:Lレベル出力*/ 
+    PORTAbits.RA0 = CLEAR;
+    PORTAbits.RA1 = CLEAR;
+    PORTAbits.RA2 = CLEAR;
+    PORTAbits.RA3 = CLEAR;
+    
+    PORTAbits.RA4 = CLEAR;
+    PORTAbits.RA5 = CLEAR;
+    PORTAbits.RA6 = CLEAR;
+    PORTAbits.RA7 = CLEAR;
+    
+    /*PORTB*/   /*1:Hレベル出力 / 0:Lレベル出力*/
+    PORTBbits.RB0 = CLEAR;
+    PORTBbits.RB1 = CLEAR;
+    PORTBbits.RB2 = CLEAR;
+    PORTBbits.RB3 = CLEAR;
+    
+    PORTBbits.RB4 = CLEAR;
+    PORTBbits.RB5 = CLEAR;
+    PORTBbits.RB6 = CLEAR;
+    PORTBbits.RB7 = CLEAR;
+    
+    /*WPUA*/
+    WPUAbits.WPUA5          = CLEAR;    /*weak pull-up RA5 control bit*/
+    
+    /*WPUB*/
+    WPUBbits.WPUB7          = CLEAR;    /*weak pull-up register bits : disabled*/
+    WPUBbits.WPUB6          = CLEAR;    /*weak pull-up register bits : disabled*/
+    WPUBbits.WPUB5          = CLEAR;    /*weak pull-up register bits : disabled*/
+    WPUBbits.WPUB4          = CLEAR;    /*weak pull-up register bits : disabled*/
+    
+    WPUBbits.WPUB3          = CLEAR;    /*weak pull-up register bits : disabled*/
+    WPUBbits.WPUB2          = CLEAR;    /*weak pull-up register bits : disabled*/
+    WPUBbits.WPUB1          = CLEAR;    /*weak pull-up register bits : disabled*/
+    WPUBbits.WPUB0          = CLEAR;    /*weak pull-up register bits : disabled*/
+    
+    /*ANSELA*/
+    ANSELAbits.ANSA4        = CLEAR;    /*analog / digital mode selection:digital*/
+    ANSELAbits.ANSA3        = CLEAR;    /*analog / digital mode selection:digital*/
+    ANSELAbits.ANSA2        = CLEAR;    /*analog / digital mode selection:digital*/
+    ANSELAbits.ANSA1        = CLEAR;    /*analog / digital mode selection:digital*/
+    ANSELAbits.ANSA0        = CLEAR;    /*analog / digital mode selection:digital*/
+    
+    /*ANSELB*/
+    ANSELBbits.ANSB7        = CLEAR;    /*analog / digital mode selection:digital*/
+    ANSELBbits.ANSB6        = CLEAR;    /*analog / digital mode selection:digital*/
+    ANSELBbits.ANSB5        = CLEAR;    /*analog / digital mode selection:digital*/
+    ANSELBbits.ANSB4        = CLEAR;    /*analog / digital mode selection:digital*/
+    
+    ANSELBbits.ANSB3        = CLEAR;    /*analog / digital mode selection:digital*/
+    ANSELBbits.ANSB2        = CLEAR;    /*analog / digital mode selection:digital*/
+    ANSELBbits.ANSB1        = CLEAR;    /*analog / digital mode selection:digital*/
+#endif
 }
 
 void ad_converter_setup(void)
@@ -524,7 +606,7 @@ void timer2_pwm_mode_setup()
     
     
     /*PWM周期(period)設定：210カウント:約38kHz*/
-    PR2 = 0xCA;
+    rs_ccp2_set_carrier_freq_8bit(0xCA);
     
     //CCPR2L =0x46;
     CCPR2L =0x00;
@@ -572,13 +654,13 @@ void set_pwm_duty(unsigned short duty)
 #endif
 }
 
-void gf_enable_interrupt(void)
+void rs_enable_interrupt(void)
 {   /*interrup.cでは使えない(リエントラント?)*/
     INTCONbits.GIE = SET;         // グローバル割り込み許可
     INTCONbits.PEIE = SET;        // リフェラル割込み許可 
 }
 
-void gf_disable_interrupt(void)
+void rs_disable_interrupt(void)
 {   /*interrupt.cでは使えない(リエントラント?)*/
     INTCONbits.GIE = CLEAR;         // グローバル割り込み禁止
     INTCONbits.PEIE = CLEAR;        // リフェラル割込み禁止
@@ -636,9 +718,14 @@ void gf_timer2_stop()
     T2CONbits.TMR2ON = CLEAR;
 }
 
-void gf_ccp2_set_pwmduty_8bit(unsigned char duty)
+void rs_ccp2_set_pwmduty_8bit(unsigned char duty)
 {
     CCPR2L = duty;
+}
+
+void rs_ccp2_set_carrier_freq_8bit(unsigned char carrier_freq)
+{
+    PR2 = carrier_freq;
 }
 
 void gf_option_integ_edge_select(unsigned char edge_state)

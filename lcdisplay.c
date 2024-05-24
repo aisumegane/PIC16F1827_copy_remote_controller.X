@@ -43,7 +43,7 @@ void lcdisplay_clear(void);
 
 void lcdisplay_main(void)
 {   /*シーケンスによって表示内容変更*/  /*copyモードでは極力割込みさせたくないので、モードに入る前に表示処理を実行する*/
-    switch(sequence_num)
+    switch(main_sequence_num)
     {
         case SEQUENCE_MAIN:
             lcdisplay_set_cursor(FIRST_ROW,FIRST_COLUMN);

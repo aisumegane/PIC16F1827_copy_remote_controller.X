@@ -12,8 +12,8 @@
 extern "C" {
 #endif
 
-    extern unsigned char powersw_state;
-    extern unsigned char powersw_state_change;
+    extern unsigned char freqchange_sw_state;
+    extern unsigned char freqchange_sw_state_change;
     
     extern unsigned char copysw_state;
     extern unsigned char copysw_state_change;

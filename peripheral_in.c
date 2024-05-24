@@ -10,6 +10,8 @@
 
 /*header*/
 #include "grobal_macro.h"
+#include "register_setup.h"
+
 #include "peripheral_in.h"
 
 #define SW_ACTIVE      0
@@ -37,12 +39,12 @@ unsigned char sendsw_state;
 unsigned char sendsw_state_change;
 
 /* SW3ÅFpower sw */
-static unsigned char powersw_port_data;
-static unsigned char powersw_state_buffer;
-static unsigned char powersw_state_before;
-static unsigned char powersw_chatter_prev_cnt;
-unsigned char powersw_state;
-unsigned char powersw_state_change;
+static unsigned char freqchange_sw_port_data;
+static unsigned char freqchange_sw_state_buffer;
+static unsigned char freqchange_sw_state_before;
+static unsigned char freqchange_sw_chatter_prev_cnt;
+unsigned char freqchange_sw_state;
+unsigned char freqchange_sw_state_change;
 
 
 void peripheral_in_init(void);
@@ -53,28 +55,34 @@ static void peripheral_in_judge_state(unsigned char *swx_port_data, unsigned cha
  
 static void peripheral_in_get_port_state(void)
 {
+#if(PORTMODE == DEBUGBOARD_MODE)
     copysw_port_data = PORTAbits.RA4;
     sendsw_port_data = PORTBbits.RB2;
-    powersw_port_data = PORTBbits.RB3;
+    freqchange_sw_port_data = PORTBbits.RB3;
+#else if(PORTMODE == PRINTBOARD_MODE)
+    copysw_port_data = PORTAbits.RA2;
+    sendsw_port_data = PORTAbits.RA3;
+    freqchange_sw_port_data = PORTBbits.RB5;
+#endif
 }
 
 void peripheral_in_init(void)
 {
     copysw_state = CLEAR;
     sendsw_state = CLEAR;
-    powersw_state = CLEAR;
+    freqchange_sw_state = CLEAR;
     
     copysw_state_before = CLEAR;
     sendsw_state_before = CLEAR;
-    powersw_state_before = CLEAR;
+    freqchange_sw_state_before = CLEAR;
     
     copysw_chatter_prev_cnt = 0x00;
-    powersw_chatter_prev_cnt = 0x00;
-    powersw_chatter_prev_cnt = 0x00;
+    freqchange_sw_chatter_prev_cnt = 0x00;
+    freqchange_sw_chatter_prev_cnt = 0x00;
     
     copysw_state_buffer = CLEAR;
     sendsw_state_buffer = CLEAR;
-    powersw_state_buffer = CLEAR;
+    freqchange_sw_state_buffer = CLEAR;
     
     
 }
@@ -84,7 +92,7 @@ void peripheral_in_main(void)
     peripheral_in_get_port_state();
     peripheral_in_judge_state(&copysw_port_data, &copysw_state_buffer, &copysw_chatter_prev_cnt, &copysw_state,&copysw_state_before,&copysw_state_change);
     peripheral_in_judge_state(&sendsw_port_data, &sendsw_state_buffer, &sendsw_chatter_prev_cnt, &sendsw_state,&sendsw_state_before,&sendsw_state_change);
-    peripheral_in_judge_state(&powersw_port_data, &powersw_state_buffer, &powersw_chatter_prev_cnt, &powersw_state, &powersw_state_before,&powersw_state_change);
+    peripheral_in_judge_state(&freqchange_sw_port_data, &freqchange_sw_state_buffer, &freqchange_sw_chatter_prev_cnt, &freqchange_sw_state, &freqchange_sw_state_before,&freqchange_sw_state_change);
 }
 
 

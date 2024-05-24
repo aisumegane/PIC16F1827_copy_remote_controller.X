@@ -32,21 +32,21 @@ void senddata_debug_test(void);
 void senddata_main(void)
 {
     
-    gf_disable_interrupt();
+    rs_disable_interrupt();
 
     timer1_compare_mode_setup();
     gf_enable_ccp1_interrupt();
     gf_timer1_start();
     gf_timer2_start();
-    peripheral_out_ra7_port_set(CLEAR);     /*pwm止めてもポートは0に落ちない*/
     
     led_data_ary_index = 0;
     led_data_index = 0;
-    senddata_high_low_flag = SET;     /*data high/low flag*/
-
-    gf_enable_interrupt();
     
-    PORTAbits.RA3 = CLEAR;
+    senddata_high_low_flag = SET;     /*data high/low flag*/
+    peripheral_out_infrared_led_off();     /*pwm止めてもポートは0に落ちないため*/
+    
+    rs_enable_interrupt();
+        
     while(1)
     {                
         if(senddata_send_end_req == SET)
@@ -54,25 +54,24 @@ void senddata_main(void)
             break;
         }
     }
-    PORTAbits.RA3 = CLEAR;
 
-    gf_disable_interrupt();
+    rs_disable_interrupt();
 
     gf_disable_ccp1_interrupt();
     gf_timer1_stop();
     gf_timer2_stop();
-    peripheral_out_ra7_port_set(CLEAR);
-    
     
     
     TMR1 = 0x0000;
     CCPR1 = 0x0000;
 
-    senddata_high_low_flag = CLEAR;  
     senddata_send_end_req = CLEAR;
     senddata_send_end_flag = SET;       /*for sequence change*/
 
-    gf_enable_interrupt();
+    senddata_high_low_flag = SET;  
+    peripheral_out_infrared_led_off();     /*pwm止めてもポートは0に落ちないため*/
+    
+    rs_enable_interrupt();
 }
 
 void senddata_debug_test(void)
@@ -82,12 +81,10 @@ void senddata_debug_test(void)
     if(senddata_high_low_flag == CLEAR)
     {
         senddata_high_low_flag = SET;
-        PORTAbits.RA3 = SET;
     }
     else
     {
         senddata_high_low_flag = CLEAR;
-        PORTAbits.RA3 = CLEAR;
     }
     
     CCPR1H = 0x00;  /*Initialize*/
@@ -258,10 +255,10 @@ void senddata_debug_test(void)
     /*CCP2 module duty setup*/
     if(senddata_high_low_flag == SET)
     {
-        gf_ccp2_set_pwmduty_8bit(0x46);
+        rs_ccp2_set_pwmduty_8bit(0x46);
     }
     else    /*if(senddata_high_low_flag == CLEAR)*/
     {
-        gf_ccp2_set_pwmduty_8bit(0x00);
+        rs_ccp2_set_pwmduty_8bit(0x00);
     }
 }
