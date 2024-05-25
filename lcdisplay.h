@@ -13,7 +13,7 @@ extern "C" {
 #endif
     
     extern void lcdisplay_init(void);
-    extern void lcdisplay_main(void);
+    extern void lcdisplay_seq_change_write_main(void);
 
 
 #ifdef	__cplusplus

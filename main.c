@@ -21,7 +21,8 @@
 #include "main.h"
 
 
-unsigned char main_sequence_num = 0;
+unsigned char           main_sequence_num = SEQUENCE_MAIN;
+static unsigned char    main_sequence_num_before = SEQUENCE_MAIN;
 
 void main_init(void);
 void main_task(void);
@@ -50,11 +51,13 @@ void main_init(void)
     
     lcdisplay_init();       /*I2C通信で初期化するのでI2Cinitの後!*/
     
+    freq_change_init();
+    
     main_sequence_num = SEQUENCE_MAIN;
 }
 
 void main_task(void)
-{
+{    
    switch(main_sequence_num){
         case SEQUENCE_MAIN:
             peripheral_in_main();       /* ポートの入力 */
@@ -65,7 +68,15 @@ void main_task(void)
             }
             else if((sendsw_state == SET) && (sendsw_state_change == SET))  /*prevention of two consecutive treatments*/
             {
-                main_sequence_num = SEQUENCE_SEND_DATA;   
+                if(copydata_led_data_ary0[0] != 0x00)
+                {   /*コピー済み、データあり*/
+                    main_sequence_num = SEQUENCE_SEND_DATA;
+                }
+                else
+                {   /*データを一回もコピーしていない（データなし）*/
+                    main_sequence_num = SEQUENCE_SEND_DEFNED_NO_DATA;
+                }
+                
             }
             else if((freqchange_sw_state == SET) && (freqchange_sw_state_change == SET))  /*prevention of two consecutive treatments*/
             {
@@ -102,6 +113,11 @@ void main_task(void)
 #endif
             break;
             
+        case SEQUENCE_SEND_DEFNED_NO_DATA:
+            main_sequence_num = SEQUENCE_MAIN;
+           
+           break;
+            
         case SEQUENCE_SEND_DATA:
             senddata_main();
             
@@ -114,6 +130,10 @@ void main_task(void)
             
        case SEQUENCE_FREQ_CHANGE:
            freq_change_main();
+           
+           /*とくに他の場所に分岐しないのでそのまま戻る*/
+           main_sequence_num = SEQUENCE_MAIN;
+           
            break;
             
        default:
@@ -121,8 +141,16 @@ void main_task(void)
     }
    
    /*common process*/
-   lcdisplay_main();   
+   lcdisplay_seq_change_write_main();   
    peripheral_out_main();
+   
+   /*make indicate delay*/
+   if(main_sequence_num != main_sequence_num_before)
+   {    /*シーケンスが変わった or 各シーケンスの分岐先で処理が終わったら、表示時間追加（一瞬表示して終わっちゃうので...）*/
+       __delay_ms(1500);
+   }
+      
+   main_sequence_num_before = main_sequence_num;
 }
 
 #if 0

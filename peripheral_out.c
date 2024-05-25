@@ -72,8 +72,6 @@ static void peripheral_out_port_set(void)
     if(port_green_led == SET)
     {
         PORTBbits.RB2 = SET;
-        __delay_ms(1000);
-        PORTBbits.RB2 = CLEAR;
     }
     else
     {

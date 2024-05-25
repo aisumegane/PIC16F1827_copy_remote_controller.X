@@ -31,22 +31,21 @@ void senddata_debug_test(void);
 
 void senddata_main(void)
 {
-    
     rs_disable_interrupt();
 
     timer1_compare_mode_setup();
     gf_enable_ccp1_interrupt();
     gf_timer1_start();
     gf_timer2_start();
-    
+
     led_data_ary_index = 0;
     led_data_index = 0;
-    
+
     senddata_high_low_flag = SET;     /*data high/low flag*/
     peripheral_out_infrared_led_off();     /*pwm止めてもポートは0に落ちないため*/
-    
+
     rs_enable_interrupt();
-        
+
     while(1)
     {                
         if(senddata_send_end_req == SET)
@@ -60,8 +59,8 @@ void senddata_main(void)
     gf_disable_ccp1_interrupt();
     gf_timer1_stop();
     gf_timer2_stop();
-    
-    
+
+
     TMR1 = 0x0000;
     CCPR1 = 0x0000;
 
@@ -70,7 +69,7 @@ void senddata_main(void)
 
     senddata_high_low_flag = SET;  
     peripheral_out_infrared_led_off();     /*pwm止めてもポートは0に落ちないため*/
-    
+
     rs_enable_interrupt();
 }
 
